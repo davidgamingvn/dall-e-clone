@@ -14,6 +14,47 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [allPosts, setAllPosts] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [searchedResults, setSearchedResults] = useState(null);
+  const [searchTimeOut, setSearchTimeOut] = useState(null);
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("http://localhost:8080/api/v1/post", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setAllPosts(data.data.reverse());
+        }
+      } catch (error) {
+        alert(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value);
+    clearTimeout(searchTimeOut);
+    setSearchTimeOut(
+      setTimeout(() => {
+        const results = allPosts.filter(
+          (item) =>
+            item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+            item.prompt.toLowerCase().includes(searchText.toLowerCase())
+        );
+        setSearchedResults(results);
+      }, 500)
+    );
+  };
+
   return (
     <section className="max-w-7xl mx-auto">
       <div>
@@ -26,7 +67,14 @@ const Home = () => {
       </div>
 
       <div className="mt-16">
-        <Form />
+        <Form
+          labelName="Searched posts"
+          type="text"
+          name="text"
+          placeholder="Search various posts shared by the community"
+          value={searchText}
+          handleChange={handleSearchChange}
+        />
       </div>
 
       <div>
@@ -39,14 +87,14 @@ const Home = () => {
             {searchText && (
               <h2 className="font-medium text-[#666e75] text-xl mb-3">
                 Showing results for
-                <span className="text-[#222328]">{searchText}</span>
+                <span className="text-[#222328]"> {searchText} </span>
               </h2>
             )}
-            <div className="grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3">
+            <div className="mt-10 grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3">
               {searchText ? (
-                <RenderCards data={[]} title="No results found" />
+                <RenderCards data={searchedResults} title="No results found" />
               ) : (
-                <RenderCards data={[]} title="No posts found" />
+                <RenderCards data={allPosts} title="No posts found" />
               )}
             </div>
           </>

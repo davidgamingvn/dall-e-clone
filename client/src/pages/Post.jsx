@@ -26,7 +26,6 @@ const Post = () => {
           }),
         });
         const data = await response.json();
-        console.log(`Image received: ${data.photoUrl}`);
         if (response.ok) {
           setForm({ ...form, photoUrl: data.photoUrl });
         } else {
@@ -41,7 +40,37 @@ const Post = () => {
       alert("Please enter a prompt");
     }
   };
-  const handleSubmit = () => {};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (form.prompt && form.photoUrl) {
+      setLoading(true);
+      try {
+        const response = await fetch("http://localhost:8080/api/v1/post", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: form.name,
+            prompt: form.prompt,
+            photo: form.photoUrl,
+          }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          navigate("/");
+        } else {
+          alert(data.error);
+        }
+      } catch (error) {
+        alert(error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      alert("Please enter a prompt and generate an image")
+    }
+  };
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -81,7 +110,7 @@ const Post = () => {
             handleSurpriseMe={handleSurpriseMe}
           />
         </div>
-        <div className="w-full h-full sm:w-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 mt-5 w-64 p-3 h-64 flex justify-center items-center">
+        <div className="w-full h-full sm:w-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 mt-5 p-3 flex justify-center items-center">
           {form.photoUrl ? (
             <img
               src={form.photoUrl}
