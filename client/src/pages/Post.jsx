@@ -16,7 +16,7 @@ const Post = () => {
     if (form.prompt) {
       try {
         setGeneratingImg(true);
-        const response = await fetch("http://localhost:8080/api/v1/dallE", {
+        const response = await fetch("https://dall-e-clone-nine.vercel.app/api/v1/dallE", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -45,7 +45,7 @@ const Post = () => {
     if (form.prompt && form.photoUrl) {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:8080/api/v1/post", {
+        const response = await fetch("https://dall-e-clone-nine.vercel.app/api/v1/post", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
